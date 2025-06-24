@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Galeria Worusia</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -18,7 +19,6 @@
       position: relative;
     }
 
-    /* 🌈 Wirujący efekt tła */
     .light-ring {
       position: absolute;
       top: 50%;
@@ -27,10 +27,7 @@
       height: 800px;
       transform: translate(-50%, -50%);
       border-radius: 50%;
-      background: conic-gradient(
-        from 0deg,
-        red, orange, yellow, green, cyan, blue, violet, red
-      );
+      background: conic-gradient(from 0deg, red, orange, yellow, green, cyan, blue, violet, red);
       filter: blur(80px);
       opacity: 0.25;
       animation: spin 40s linear infinite, float 10s ease-in-out infinite alternate;
@@ -43,7 +40,7 @@
     }
 
     @keyframes float {
-      0%   { top: 45%; left: 48%; }
+      0% { top: 45%; left: 48%; }
       100% { top: 55%; left: 52%; }
     }
 
@@ -74,8 +71,10 @@
       width: 100%;
       height: 360px;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
+      position: relative;
     }
 
     #gallery img {
@@ -84,6 +83,36 @@
       object-fit: contain;
       border-radius: 6px;
       user-select: none;
+      transition: opacity 0.5s ease;
+    }
+
+    #caption {
+      margin-top: 10px;
+      color: #333;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .miniatures {
+      display: flex;
+      gap: 5px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .miniatures img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 5px;
+      cursor: pointer;
+      opacity: 0.6;
+    }
+
+    .miniatures img.active {
+      opacity: 1;
+      outline: 2px solid #ff0000;
     }
 
     button.arrow-btn {
@@ -115,10 +144,9 @@
 </head>
 <body>
 
-  <!-- 🌈 Tło wirujące -->
   <div class="light-ring"></div>
 
-  <h2>Galeria Worusia - Jaki Cwelek!</h2>
+  <h2>Galeria Worusia - Moje początki cwelenia się!</h2>
 
   <div id="container">
     <button id="prev" class="arrow-btn" aria-label="Poprzednie">
@@ -127,6 +155,7 @@
 
     <div id="gallery">
       <img id="photo" src="1.png" alt="Zdjęcie 1" />
+      <div id="caption">Pierwsze zdjęcie Worusia</div>
     </div>
 
     <button id="next" class="arrow-btn" aria-label="Następne">
@@ -134,31 +163,86 @@
     </button>
   </div>
 
+  <div class="miniatures" id="thumbnails"></div>
+
   <script>
-    const photo = document.getElementById('photo');
-    const prevBtn = document.getElementById('prev');
-    const nextBtn = document.getElementById('next');
     const totalPhotos = 19;
     let currentIndex = 1;
+    const photo = document.getElementById('photo');
+    const caption = document.getElementById('caption');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const thumbnails = document.getElementById('thumbnails');
+
+    const captions = [
+      "", // indeks 0
+       "Absolutne kino.",
+      "Cwelowi zabrakło prądu.",
+      "Opierdala ze smakiem.",
+      "'kabanoski Igora.'",
+      "Skibidi woruś.",
+      "Piekny kwiatek.",
+      "Przysiad na choinkę",
+      "Zajebiście duży posiłek.",
+      "Myśli że go kurwa nie widać.",
+      "pejzaż horbowski.",
+      "ledwo widac ryj.",
+      "dowody na cwelusia.",
+      "ale łapa kurwa.",
+      "Krul.",
+      "znaki gangu.",
+      "puste tortille bo parówki się skończyły.",
+      "jebany alkoholik.",
+      "Stały konfident.",
+      "Woruś za 5 latek.",
+    ];
 
     function updatePhoto() {
-      photo.src = currentIndex + '.png';
-      photo.alt = `Zdjęcie ${currentIndex}`;
+      photo.style.opacity = 0;
+      setTimeout(() => {
+        photo.src = `${currentIndex}.png`;
+        photo.alt = `Zdjęcie ${currentIndex}`;
+        caption.textContent = captions[currentIndex] || `Zdjęcie ${currentIndex}`;
+        document.querySelectorAll('.miniatures img').forEach((img, idx) => {
+          img.classList.toggle('active', idx + 1 === currentIndex);
+        });
+        photo.style.opacity = 1;
+      }, 200);
     }
 
     prevBtn.addEventListener('click', () => {
-      currentIndex--;
-      if (currentIndex < 1) currentIndex = totalPhotos;
+      currentIndex = (currentIndex - 1) || totalPhotos;
       updatePhoto();
     });
 
     nextBtn.addEventListener('click', () => {
-      currentIndex++;
-      if (currentIndex > totalPhotos) currentIndex = 1;
+      currentIndex = (currentIndex % totalPhotos) + 1;
       updatePhoto();
     });
 
-    // Start
+    for (let i = 1; i <= totalPhotos; i++) {
+      const img = document.createElement('img');
+      img.src = `${i}.png`;
+      img.alt = `Miniatura ${i}`;
+      img.addEventListener('click', () => {
+        currentIndex = i;
+        updatePhoto();
+      });
+      thumbnails.appendChild(img);
+    }
+
+    // Konami kod – efekt retro
+    const konami = [38,38,40,40,37,39,37,39,66,65];
+    let input = [];
+    document.addEventListener('keydown', (e) => {
+      input.push(e.keyCode);
+      input.splice(-konami.length - 1, input.length - konami.length);
+      if (input.join('') === konami.join('')) {
+        alert('Wersja Retro Aktywowana! 🎮');
+        document.body.style.filter = 'grayscale(100%) sepia(80%)';
+      }
+    });
+
     updatePhoto();
   </script>
 
